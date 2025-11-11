@@ -11,6 +11,7 @@ app.get("/", (req, res) => {
   res.send("Welcome to pawmart server");
 });
 
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
@@ -34,6 +35,12 @@ async function run() {
     app.get("/listings", async (req, res) => {
       const listings = await listingsCollection.find().toArray();
       res.send(listings);
+    });
+    
+      app.get("/listings/:id", async (req, res) => {
+      const id = req.params.id;
+      const listing = await listingsCollection.findOne({ _id: new ObjectId(id) });
+      res.send(listing);
     });
 
     await client.db("admin").command({ ping: 1 });
