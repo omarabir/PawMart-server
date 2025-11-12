@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = 3000;
 
@@ -57,6 +57,15 @@ async function run() {
 
       const listings = await listingsCollection.find({ email }).toArray();
       res.send(listings);
+    });
+
+    app.delete("/listings/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await listingsCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+
+      res.status(200).json({ deletedCount: result.deletedCount });
     });
 
     await client.db("admin").command({ ping: 1 });
