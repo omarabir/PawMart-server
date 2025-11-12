@@ -49,6 +49,15 @@ async function run() {
       const result = await listingsCollection.insertOne(newListing);
       res.send(result);
     });
+    app.get("/my-listings", async (req, res) => {
+      const email = req.query.email;
+      if (!email) {
+        return res.status(400).send({ message: "Email is required" });
+      }
+
+      const listings = await listingsCollection.find({ email }).toArray();
+      res.send(listings);
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
