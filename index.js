@@ -30,6 +30,7 @@ async function run() {
 
     const db = client.db("pawmartDB");
     const listingsCollection = db.collection("listings");
+    const ordersCollection = db.collection("orders");
 
     app.get("/listings", async (req, res) => {
       const listings = await listingsCollection.find().toArray();
@@ -37,7 +38,7 @@ async function run() {
     });
 
     app.get("/listings/:id", async (req, res) => {
-      const id = req.params.id;
+      const { id } = req.params;
       const listing = await listingsCollection.findOne({
         _id: new ObjectId(id),
       });
@@ -66,6 +67,24 @@ async function run() {
       });
 
       res.status(200).json({ deletedCount: result.deletedCount });
+    });
+
+    // orders
+    app.get("/orders", async (req, res) => {
+      const email = req.query.email;
+      if (!email) {
+        return res.status(400).send({ message: "Email is required" });
+      }
+      const orders = await ordersCollection.find({ email }).toArray();
+      res.send(orders);
+    });
+    app.post("/orders", async (req, res) => {
+      const order = req.body;
+      if (!order.email || !order.productId) {
+        return res.status(400).send({ message: "Missing required fields" });
+      }
+      const result = await ordersCollection.insertOne(order);
+      res.send(result);
     });
 
     await client.db("admin").command({ ping: 1 });
