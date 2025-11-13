@@ -69,6 +69,27 @@ async function run() {
       res.status(200).json({ deletedCount: result.deletedCount });
     });
 
+    app.put("/listings/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const updatedData = { ...req.body };
+        delete updatedData._id;
+        const result = await listingsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: updatedData }
+        );
+
+        if (result.modifiedCount === 0) {
+          return res
+            .status(404)
+            .send({ message: "Listing not found or no changes made" });
+        }
+        res.status(200).send({ success: true });
+      } catch (error) {
+        console.error("Update error:", error);
+        res.status(500).send({ message: "Failed to update listing" });
+      }
+    });
     // orders
     app.get("/orders", async (req, res) => {
       const email = req.query.email;
